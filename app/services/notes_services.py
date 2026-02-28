@@ -40,11 +40,15 @@ def view_my_notes_service(db:Session,current_user:User):
     return notes
 
 #View a specific note
-def get_note_file_service(note_id:int,db:Session,current_user:User):
-    note=db.query(Note).filter(Note.id==note_id,Note.owner_id==current_user.id).first()
+def get_note_file_service(note_id:int,db:Session,current_user:User | None):
+    note=db.query(Note).filter(Note.id==note_id).first()
     if not note:
         raise HTTPException(status_code=404,
                             detail="Note not found")
+    if note.is_private:
+        if not current_user or note.owner_id!=current_user.id:
+            raise HTTPException(status_code=403,
+                                detail="Not authorized")
     if not os.path.exists(note.file_path):
         raise HTTPException(status_code=404,
                             detail="File missing")

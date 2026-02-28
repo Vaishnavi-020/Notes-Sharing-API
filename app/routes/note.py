@@ -2,8 +2,9 @@ from fastapi import APIRouter,HTTPException,Depends,UploadFile,File,Form
 from sqlalchemy.orm import Session
 from app.services.notes_services import create_note_service,view_my_notes_service,get_note_file_service
 from app.schemas.notes_schema import NotesOut
+from app.models.users import User
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user,get_current_user_optional
 
 router=APIRouter(prefix='/notes',tags=["Notes"])
 
@@ -32,5 +33,5 @@ def view_my_notes(db:Session=Depends(get_db),current_user=Depends(get_current_us
     return view_my_notes_service(db,current_user)
 
 @router.get("/{note_id}")
-def get_note_file(note_id:int,db:Session=Depends(get_db),current_user=Depends(get_current_user)):
+def get_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
     return get_note_file_service(note_id,db,current_user)
