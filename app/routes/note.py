@@ -1,7 +1,7 @@
 from fastapi import APIRouter,HTTPException,Depends,UploadFile,File,Form
 from sqlalchemy.orm import Session
-from app.services.notes_services import create_note_service,view_my_notes_service,get_note_file_service
-from app.schemas.notes_schema import NotesOut
+from app.services.notes_services import create_note_service,view_my_notes_service,get_note_file_service,edit_note_service,delete_note_service,search_notes_service
+from app.schemas.notes_schema import NotesOut,NoteUpdate
 from app.models.users import User
 from app.database import get_db
 from app.dependencies import get_current_user,get_current_user_optional
@@ -32,6 +32,22 @@ async def upload_note(title:str=Form(...),
 def view_my_notes(db:Session=Depends(get_db),current_user=Depends(get_current_user)):
     return view_my_notes_service(db,current_user)
 
+@router.get("/search")
+def search_notes(q:str,
+                 db:Session=Depends(get_db),
+                 current_user:User|None=Depends(get_current_user_optional)):
+    return search_notes_service(db,q,current_user)
+
 @router.get("/{note_id}")
 def get_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
     return get_note_file_service(note_id,db,current_user)
+
+@router.put("/{note_id}")
+def edit_note(note_id:int,note_data:NoteUpdate,db:Session=Depends(get_db),current_user=Depends(get_current_user)):
+    return edit_note_service(note_id,note_data,db,current_user)
+
+@router.delete("/{note_id}")
+def delete_note(note_id:int,db:Session=Depends(get_db),current_user=Depends(get_current_user)):
+    return delete_note_service(note_id,db,current_user)
+
+

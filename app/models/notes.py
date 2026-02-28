@@ -1,5 +1,6 @@
 from .base import Base
 from sqlalchemy import Column,Integer,String,ForeignKey,Boolean
+from sqlalchemy.orm import relationship
 
 class Note(Base):
     __tablename__="notes"
@@ -10,3 +11,6 @@ class Note(Base):
     description=Column(String,nullable=False)
     is_private=Column(Boolean,nullable=False)
     file_path=Column(String,nullable=False)
+
+    owner=relationship("User",back_populates="notes")
+

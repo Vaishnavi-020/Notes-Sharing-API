@@ -1,7 +1,9 @@
 from fastapi import HTTPException,UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.models import Note,User
+from app.schemas.notes_schema import NoteUpdate
 import os
 import uuid
 import shutil
@@ -57,3 +59,49 @@ def get_note_file_service(note_id:int,db:Session,current_user:User | None):
         filename=os.path.basename(note.file_path),
         media_type="application/octet-stream"
     )
+
+#Edit note
+def edit_note_service(note_id:int,note_data:NoteUpdate,db:Session,current_user:User):
+    note=db.query(Note).filter(Note.id==note_id,Note.owner_id==current_user.id).first()
+    if not note:
+        raise HTTPException(status_code=404,
+                            detail="Note not found")
+    if note_data.title is not None:
+        note.title=note_data.title
+    if note_data.description is not None:
+        note.description=note_data.description
+    
+    db.commit()
+    db.refresh(note)
+
+    return note
+
+#Delete note
+def delete_note_service(note_id:int,db:Session,current_user:User):
+    note=db.query(Note).filter(Note.id==note_id,Note.owner_id==current_user.id).first()
+    if not note:
+        raise HTTPException(status_code=400,
+                            detail="Note not found")
+    db.delete(note)
+    db.commit()
+
+    return {
+        "message":"Note deleted successfully"
+    }
+
+#Search note
+def search_notes_service(db:Session,query:str,current_user:User|None):
+    search_filter=(or_(Note.title.ilike(f"%{query}%"),
+                                    Note.description.ilike(f"%{query}%"),
+                                    Note.subject.ilike(f"%{query}%"),
+                                    ))
+    if current_user is None:
+        notes=db.query(Note).filter(search_filter,
+                                    Note.is_private==False).all()
+    else:
+        notes=db.query(Note).filter(search_filter,
+                                     or_(Note.is_private==False,
+                                        Note.owner_id==current_user.id,
+                                        ),
+                                        ).all()
+    return notes
