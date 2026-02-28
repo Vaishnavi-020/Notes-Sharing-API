@@ -1,2 +1,2 @@
 from app.models.users import User
-from app.models.notes import Notes
+from app.models.notes import Note
