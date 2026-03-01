@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException,Depends,UploadFile,File,Form
 from sqlalchemy.orm import Session
-from app.services.notes_services import create_note_service,get_my_notes_service,get_note_file_service,edit_note_service,delete_note_service,search_notes_service
+from app.services.notes_services import create_note_service,get_my_notes_service,get_public_notes_service,get_note_file_service,edit_note_service,delete_note_service,search_notes_service
 from app.schemas.notes_schema import NotesOut,NoteUpdate
 from app.models.users import User
 from app.database import get_db
@@ -46,6 +46,12 @@ def search_notes(q:str,
         "limit":pagination["limit"],
         "items":notes,
     }
+
+@router.get("/public_notes")
+def get_public_notes(db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional),pagination:dict=Depends(pagination_params)):
+    return get_public_notes_service(db,current_user,pagination)
+
+
 @router.get("/{note_id}/download")
 def get_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
     return get_note_file_service(note_id,db,current_user)

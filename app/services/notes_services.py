@@ -35,7 +35,8 @@ def create_note_service(title:str,description:str,subject:str,is_private:bool,fi
         db.refresh(new_note)
 
         return new_note
-    
+
+#View all private notes
 def get_my_notes_service(db:Session,current_user:User,pagination:dict):
     total=db.query(Note).filter(Note.owner_id==current_user.id).count()
     notes=db.query(Note).filter(Note.owner_id==current_user.id).offset(pagination["offset"]).limit(pagination["limit"]).all()
@@ -47,6 +48,15 @@ def get_my_notes_service(db:Session,current_user:User,pagination:dict):
         "items":notes,
     }
 
+
+#View public notes
+def get_public_notes_service(db:Session,current_user:User|None,pagination:dict):
+    base_query=db.query(Note).filter(Note.is_private==False)
+    total=base_query.count()
+    notes=(base_query.offset(pagination["offset"])
+           .limit(pagination["limit"])
+           .all())
+    return total,notes
 
 #View a specific note
 def get_note_file_service(note_id:int,db:Session,current_user:User | None):
