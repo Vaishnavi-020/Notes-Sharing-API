@@ -1,7 +1,8 @@
 from fastapi import APIRouter,HTTPException,Depends,UploadFile,File,Form
 from sqlalchemy.orm import Session
 from app.services.notes_services import create_note_service,get_my_notes_service,get_public_notes_service,get_note_file_service,edit_note_service,delete_note_service,search_notes_service
-from app.schemas.notes_schema import NotesOut,NoteUpdate
+from app.schemas.notes_schema import NoteOut,NoteUpdate
+from app.schemas.paginated_schema import PaginatedResponse
 from app.models.users import User
 from app.database import get_db
 from app.dependencies import get_current_user,get_current_user_optional,pagination_params
@@ -29,12 +30,12 @@ async def upload_note(title:str=Form(...),
     }
 
 
-@router.get('/my_notes')
+@router.get('/my_notes',response_model=PaginatedResponse[NoteOut])
 def get_my_notes(db:Session=Depends(get_db),current_user=Depends(get_current_user),pagination:dict=Depends(pagination_params)):
     return get_my_notes_service(db,current_user,pagination)
 
 
-@router.get("/search")
+@router.get("/search",response_model=PaginatedResponse[NoteOut])
 def search_notes(q:str,
                  db:Session=Depends(get_db),
                  current_user:User|None=Depends(get_current_user_optional),
@@ -47,9 +48,15 @@ def search_notes(q:str,
         "items":notes,
     }
 
-@router.get("/public_notes")
+@router.get("/public_notes",response_model=PaginatedResponse[NoteOut])
 def get_public_notes(db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional),pagination:dict=Depends(pagination_params)):
-    return get_public_notes_service(db,current_user,pagination)
+    total,notes=get_public_notes_service(db,current_user,pagination)
+    return {
+        "total":total,
+        "page":pagination["page"],
+        "limit":pagination["limit"],
+        "items":notes
+    }
 
 
 @router.get("/{note_id}/download")

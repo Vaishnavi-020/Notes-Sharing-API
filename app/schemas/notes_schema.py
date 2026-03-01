@@ -1,9 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class NotesOut(BaseModel):
+class NoteOut(BaseModel):
     id:int
     title:str
+    description:str
+    subject:str
+    is_private:bool
 
     class Config:
         from_attributes=True
