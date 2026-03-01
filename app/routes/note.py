@@ -46,7 +46,7 @@ def search_notes(q:str,
         "limit":pagination["limit"],
         "items":notes,
     }
-@router.get("/{note_id}")
+@router.get("/{note_id}/download")
 def get_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
     return get_note_file_service(note_id,db,current_user)
 
