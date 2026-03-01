@@ -1,4 +1,4 @@
-from fastapi import HTTPException,Depends,status
+from fastapi import HTTPException,Depends,status,Query
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt,JWTError
 from app.core.config import SECRET_KEY,JWT_ALGORITHM
@@ -39,3 +39,10 @@ def get_current_user_optional(db:Session=Depends(get_db),token:str=Depends(oauth
         return None
     user=db.query(User).filter(User.id==user_id).first()
     return user
+
+def pagination_params(
+        page:int=Query(1,ge=1),
+        limit:int=Query(10,ge=1,le=100),
+):
+    offset=(page-1)*limit
+    return {"page":page,"limit":limit,"offset":offset}

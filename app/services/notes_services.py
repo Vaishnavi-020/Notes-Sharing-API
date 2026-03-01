@@ -36,10 +36,17 @@ def create_note_service(title:str,description:str,subject:str,is_private:bool,fi
 
         return new_note
     
-#View all notes created by yourself    
-def view_my_notes_service(db:Session,current_user:User):
-    notes=db.query(Note).filter(Note.owner_id==current_user.id).all()
-    return notes
+def get_my_notes_service(db:Session,current_user:User,pagination:dict):
+    total=db.query(Note).filter(Note.owner_id==current_user.id).count()
+    notes=db.query(Note).filter(Note.owner_id==current_user.id).offset(pagination["offset"]).limit(pagination["limit"]).all()
+
+    return {
+        "total":total,
+        "page":pagination["page"],
+        "limit":pagination["limit"],
+        "items":notes,
+    }
+
 
 #View a specific note
 def get_note_file_service(note_id:int,db:Session,current_user:User | None):
@@ -90,18 +97,24 @@ def delete_note_service(note_id:int,db:Session,current_user:User):
     }
 
 #Search note
-def search_notes_service(db:Session,query:str,current_user:User|None):
+def search_notes_service(db:Session,query:str,current_user:User|None,offset:int,limit:int):
     search_filter=(or_(Note.title.ilike(f"%{query}%"),
                                     Note.description.ilike(f"%{query}%"),
                                     Note.subject.ilike(f"%{query}%"),
                                     ))
+    
+    base_query=db.query(Note).filter(search_filter)
+
     if current_user is None:
-        notes=db.query(Note).filter(search_filter,
-                                    Note.is_private==False).all()
+        base_query=base_query.filter(Note.is_private==False)
+
     else:
-        notes=db.query(Note).filter(search_filter,
-                                     or_(Note.is_private==False,
-                                        Note.owner_id==current_user.id,
-                                        ),
-                                        ).all()
-    return notes
+        base_query=base_query.filter(
+            or_(
+                Note.is_private==False,
+                Note.owner_id==current_user.id,
+            )
+        )
+    total=base_query.count()
+    notes=(base_query.offset(offset).limit(limit).all())
+    return total,notes
