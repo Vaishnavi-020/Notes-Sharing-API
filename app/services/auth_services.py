@@ -9,18 +9,41 @@ from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 
 def register_user_service(user:UserCreate,db:Session):
-    existing_user=db.query(User).filter(User.email==user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=406,detail="User with this email already exists")
-    user=User(name=user.name,
-              email=user.email,
-              password_hash=hash_password(user.password))
-    
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        existing_user=db.query(User).filter(User.email==user.email).first()
+        if existing_user:
+            raise HTTPException(status_code=406,detail="User with this email already exists")
+        
+        new_user=User(name=user.name,
+                    email=user.email,
+                    password_hash=hash_password(user.password))
+        
+        db.add(new_user)
+        db.flush()
 
-    return user
+        access_token=create_access_token(
+            data={
+                "sub":str(new_user.id),
+            },
+            expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        db.commit()
+        db.refresh(new_user)
+
+        return{
+            "access_token":access_token,
+            "token_type":"bearer",
+            "user":{
+                "id":new_user.id,
+                "name":new_user.name,
+                "email":new_user.email
+            }
+        }
+    except Exception:
+        db.rollback()
+        raise
+
+
 
 def login_user_service(form_data:OAuth2PasswordRequestForm,db:Session):
     user=db.query(User).filter(User.email==form_data.username).first()
@@ -37,5 +60,11 @@ def login_user_service(form_data:OAuth2PasswordRequestForm,db:Session):
 
     return {
         "access_token":access_token,
-        "token_type":"bearer"
+        "token_type":"bearer",
+        "user":{
+            "id":user.id,
+            "name":user.name,
+            "email":user.email
+            
+        }
     }
