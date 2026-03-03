@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class NoteOut(BaseModel):
     id:int
@@ -7,6 +8,7 @@ class NoteOut(BaseModel):
     description:str
     subject:str
     is_private:bool
+    created_at:datetime
 
     class Config:
         from_attributes=True
