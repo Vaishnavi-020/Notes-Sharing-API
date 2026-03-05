@@ -49,7 +49,7 @@ def login_user_service(form_data:OAuth2PasswordRequestForm,db:Session):
     user=db.query(User).filter(User.email==form_data.username).first()
     if not user or not verify_password(form_data.password,user.password_hash):
         raise HTTPException(status_code=401,
-                            detail="Invalid credentials")
+                            detail="Email and Password does not match")
     
     access_token=create_access_token(
         data={

@@ -6,6 +6,7 @@ from app.schemas.paginated_schema import PaginatedResponse
 from app.models.users import User
 from app.database import get_db
 from app.dependencies import get_current_user,get_current_user_optional,pagination_params
+import math
 
 router=APIRouter(prefix='/notes',tags=["Notes"])
 
@@ -41,20 +42,24 @@ def search_notes(q:str,
                  current_user:User|None=Depends(get_current_user_optional),
                  pagination:dict=Depends(pagination_params)):
     total,notes=search_notes_service(db=db,query=q,current_user=current_user,offset=pagination["offset"],limit=pagination["limit"],)
+    total_pages=math.ceil(total/pagination["limit"])
     return{
         "total":total,
         "page":pagination["page"],
         "limit":pagination["limit"],
+        "total_pages":total_pages,
         "items":notes,
     }
 
 @router.get("/public_notes",response_model=PaginatedResponse[NoteOut])
 def get_public_notes(db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional),pagination:dict=Depends(pagination_params)):
     total,notes=get_public_notes_service(db,current_user,pagination)
+    total_pages=math.ceil(total/pagination["limit"])
     return {
         "total":total,
         "page":pagination["page"],
         "limit":pagination["limit"],
+        "total_pages":total_pages,
         "items":notes
     }
 

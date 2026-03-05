@@ -7,4 +7,5 @@ class PaginatedResponse(BaseModel,Generic[T]):
     total:int
     page:int
     limit:int
+    total_pages:int
     items:List[T]

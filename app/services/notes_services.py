@@ -7,6 +7,7 @@ from app.schemas.notes_schema import NoteUpdate
 import os
 import uuid
 import shutil
+import math
 
 UPLOAD_DIR="uploads"
 os.makedirs(UPLOAD_DIR,exist_ok=True)
@@ -15,7 +16,7 @@ os.makedirs(UPLOAD_DIR,exist_ok=True)
 def create_note_service(title:str,description:str,subject:str,is_private:bool,file:UploadFile,db:Session,current_user:User):
     if not file.filename.endswith((".pdf",".doc",".docx")):
         raise HTTPException(status_code=400,
-                            detail="Invalid file type")
+                            detail="File should be in pdf,doc or docx format only")
     unique_name=f"{uuid.uuid4()}_{file.filename}"
     file_path=os.path.join(UPLOAD_DIR,unique_name)
 
@@ -40,11 +41,12 @@ def create_note_service(title:str,description:str,subject:str,is_private:bool,fi
 def get_my_notes_service(db:Session,current_user:User,pagination:dict):
     total=db.query(Note).filter(Note.owner_id==current_user.id).count()
     notes=db.query(Note).filter(Note.owner_id==current_user.id).offset(pagination["offset"]).limit(pagination["limit"]).all()
-
+    total_pages=math.ceil(total/pagination["limit"])
     return {
         "total":total,
         "page":pagination["page"],
         "limit":pagination["limit"],
+        "total_pages":total_pages,
         "items":notes,
     }
 
