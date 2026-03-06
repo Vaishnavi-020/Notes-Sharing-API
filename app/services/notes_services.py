@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app.models import Note,User
 from app.schemas.notes_schema import NoteUpdate
+from app.utils.file_text_extractor import extract_text
 import os
 import uuid
 import shutil
@@ -14,28 +15,31 @@ os.makedirs(UPLOAD_DIR,exist_ok=True)
 
 #Upload a note
 def create_note_service(title:str,description:str,subject:str,is_private:bool,file:UploadFile,db:Session,current_user:User):
-    if not file.filename.endswith((".pdf",".doc",".docx")):
+    if not file.filename.endswith((".pdf",".docx")):
         raise HTTPException(status_code=400,
-                            detail="File should be in pdf,doc or docx format only")
+                            detail="File should be in pdf or docx format only")
     unique_name=f"{uuid.uuid4()}_{file.filename}"
     file_path=os.path.join(UPLOAD_DIR,unique_name)
 
     with open(file_path,"wb") as buffer:
         shutil.copyfileobj(file.file,buffer)
 
-        new_note=Note(
+    content=extract_text(file_path)
+    
+    new_note=Note(
             owner_id=current_user.id,
             title=title,
             description=description,
             subject=subject,
             is_private=is_private,
             file_path=file_path,
+            content=content
         )
-        db.add(new_note)
-        db.commit()
-        db.refresh(new_note)
+    db.add(new_note)
+    db.commit()
+    db.refresh(new_note)
 
-        return new_note
+    return new_note
 
 #View all private notes
 def get_my_notes_service(db:Session,current_user:User,pagination:dict):
