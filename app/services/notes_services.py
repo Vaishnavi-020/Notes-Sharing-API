@@ -68,12 +68,25 @@ def get_public_notes_service(db:Session,current_user:User|None,pagination:dict):
 def get_note_file_service(note_id:int,db:Session,current_user:User | None):
     note=db.query(Note).filter(Note.id==note_id).first()
     if not note:
+        raise HTTPException(404,
+                            detail="Note not found")
+    if note.is_private:
+        if not current_user or note.owner_id!=current_user.id:
+            raise HTTPException(status_code=403,
+                                detail="You cannot access this note")
+        
+    return note
+
+#Download a specific note
+def download_note_file_service(note_id:int,db:Session,current_user:User | None):
+    note=db.query(Note).filter(Note.id==note_id).first()
+    if not note:
         raise HTTPException(status_code=404,
                             detail="Note not found")
     if note.is_private:
         if not current_user or note.owner_id!=current_user.id:
             raise HTTPException(status_code=403,
-                                detail="Not authorized")
+                                detail="You cannot download this note")
     if not os.path.exists(note.file_path):
         raise HTTPException(status_code=404,
                             detail="File missing")
