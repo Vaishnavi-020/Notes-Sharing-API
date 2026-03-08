@@ -9,14 +9,13 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 model=genai.GenerativeModel("gemini-2.5-flash")
 
-def ask_ai_about_note_service(note_data:AIRequest,db:Session,current_user:User|None):
-    note_id=note_data.note_id
+def ask_ai_about_note_service(note_id:int,note_data:AIRequest,db:Session,current_user:User|None):
 
     note=db.query(Note).filter(Note.id==note_id).first()
     if not note:
         return{"Error":"Note not found"}
     if note.is_private:
-        if note.owner_id!=current_user.id:
+        if not current_user or note.owner_id!=current_user.id:
             raise HTTPException(403,
                                 detail="You cannot access this note.")
     note_text=note.content

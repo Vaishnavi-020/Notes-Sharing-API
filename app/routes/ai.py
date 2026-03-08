@@ -8,9 +8,6 @@ from app.dependencies import get_current_user_optional
 
 router=APIRouter(prefix="/ai",tags=["AI"])
 
-@router.post("/ask")
-def ask_ai_about_note(request:AIRequest,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
-    answer=ask_ai_about_note_service(request,db,current_user)
-    return{
-        "answer":answer
-        }
+@router.post("/ask/{note_id}")
+def ask_ai_about_note(note_id:int,note_data:AIRequest,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
+    return ask_ai_about_note_service(note_id,note_data,db,current_user)
