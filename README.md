@@ -1,7 +1,7 @@
 # Notes Sharing API
 
 ## 📌 Project Overview
-A full-stack web application for uploading and sharing notes publicly or privately.The system supports uploading notes, downloading it, viewing own and others public notes.
+A full-stack web application for uploading and sharing notes publicly or privately.The system supports uploading notes, downloading it, viewing own and others public notes, asking AI questions about a particular uploaded note.
 
 ---
 
@@ -13,6 +13,7 @@ A full-stack web application for uploading and sharing notes publicly or private
 - Notes upload
 - Notes download
 - Sharing notes publicly
+- Asking AI about notes
 
 ### System
 - JWT authorization
@@ -52,7 +53,6 @@ Frontend:
 
 ## Future Improvements
 
-- AI Integration
 - Deployment
 - Dockerization
 
