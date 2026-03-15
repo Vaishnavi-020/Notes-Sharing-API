@@ -1,4 +1,4 @@
-from fastapi import HTTPException,UploadFile
+from fastapi import HTTPException,UploadFile,Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -78,7 +78,7 @@ def get_note_file_service(note_id:int,db:Session,current_user:User | None):
     return note
 
 #Download a specific note
-def download_note_file_service(note_id:int,db:Session,current_user:User | None):
+def download_note_file_service(note_id:int,request:Request,db:Session,current_user:User | None):
     note=db.query(Note).filter(Note.id==note_id).first()
     if not note:
         raise HTTPException(status_code=404,

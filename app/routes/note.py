@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException,Depends,UploadFile,File,Form
+from fastapi import APIRouter,Depends,UploadFile,File,Form,Request
 from sqlalchemy.orm import Session
 from app.services.notes_services import create_note_service,get_my_notes_service,get_public_notes_service,get_note_file_service,download_note_file_service,edit_note_service,delete_note_service,search_notes_service
 from app.schemas.notes_schema import NoteOut,NoteUpdate
@@ -68,8 +68,8 @@ def get_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=
     return get_note_file_service(note_id,db,current_user)
 
 @router.get("/{note_id}/download")
-def download_note_file(note_id:int,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
-    return download_note_file_service(note_id,db,current_user)
+def download_note_file(note_id:int,request:Request,db:Session=Depends(get_db),current_user:User|None=Depends(get_current_user_optional)):
+    return download_note_file_service(note_id,request,db,current_user)
 
 @router.put("/{note_id}")
 def edit_note(note_id:int,note_data:NoteUpdate,db:Session=Depends(get_db),current_user=Depends(get_current_user)):

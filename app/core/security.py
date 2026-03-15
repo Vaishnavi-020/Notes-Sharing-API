@@ -1,4 +1,4 @@
-from fastapi import HTTPException,status
+from fastapi import HTTPException
 from passlib.context import CryptContext
 from jose import jwt,JWTError
 from app.core.config import SECRET_KEY,JWT_ALGORITHM
