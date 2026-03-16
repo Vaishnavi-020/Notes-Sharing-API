@@ -72,14 +72,17 @@ Database hosted on: Render PostgreSQL
 If you want to run the project locally:
 
 ## 1️⃣ Clone the Repository
+```bash
 git clone https://github.com/Vaishnavi-020/Notes-Sharing-API.git
 cd notes-sharing-api
-
+```
 ---
 
 ## 2️⃣ Backend Setup
+```bash
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+```
 
 Backend will run on:
 http://localhost:8000
@@ -90,10 +93,11 @@ http://localhost:8000/docs
 ---
 
 ## 3️⃣ Frontend Setup
+```bash
 cd frontend
 npm install
 npm run dev
-
+```
 Frontend will run on:
 http://localhost:5173
 
