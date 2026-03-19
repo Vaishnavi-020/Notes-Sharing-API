@@ -61,9 +61,10 @@ Database:
 ## 📦 Deployment
 
 The project is fully deployed:
-Frontend deployed on: Vercel
-Backend API deployed on: Render
-Database hosted on: Render PostgreSQL
+
+- Frontend deployed on: Vercel
+- Backend API deployed on: Render
+- Database hosted on: Render PostgreSQL
 
 ---
 
