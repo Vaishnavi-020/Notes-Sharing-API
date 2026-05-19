@@ -18,6 +18,50 @@ Backend API:
 
 ---
 
+### Repo Structure
+```plaintext
+project-root/
+│   .env
+│   .gitignore
+│   README.md
+│   requirements.txt
+│
+├───app
+│   │   database.py
+│   │   dependencies.py
+│   │   main.py
+│   │
+│   ├───core
+│   │   │   config.py
+│   │   │   security.py
+│   │
+│   ├───models
+│   │   │   base.py
+│   │   │   notes.py
+│   │   │   users.py
+│   │   │   __init__.py
+│   │
+│   ├───routes
+│   │   │   ai.py
+│   │   │   auth.py
+│   │   │   note.py
+│   │   
+│   ├───schemas
+│   │   │   ai_schema.py
+│   │   │   auth_schema.py
+│   │   │   notes_schema.py
+│   │   │   paginated_schema.py
+│   │
+│   ├───services
+│   │   │   ai_services.py
+│   │   │   auth_services.py
+│   │   │   notes_services.py
+│   │
+│   ├───utils
+│   │   │   file_text_extractor.py
+```
+---
+
 ### 🚀 Features
 
 ## 👤 User Features
